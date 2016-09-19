@@ -18,11 +18,26 @@ module Cenit
             end
         end
 
+        def with_current_tenant
+          with(Cenit::MultiTenancy.tenant_model.current_tenant)
+        end
+
         def with(options)
-          if ((tenant = options).is_a?(Cenit::MultiTenancy.tenant_model) && (options = {})) ||
-            (options.is_a?(Hash) && options.has_key?(Cenit::MultiTenancy.tenant_model_key) && ((tenant = options.delete(Cenit::MultiTenancy.tenant_model_key)) || true))
-            options = options.merge(collection: Cenit::MultiTenancy.tenant_model.tenant_collection_name(mongoid_root_class, Cenit::MultiTenancy.tenant_model_key => tenant))
+          tenant_option = false
+          tenant = nil
+          if options.is_a?(Cenit::MultiTenancy.tenant_model)
+            tenant_option = tenant = options
+            options = {}
+          elsif options.is_a?(Hash)
+            [
+              :tenant,
+              Cenit::MultiTenancy.tenant_model_key
+            ].each do |key|
+              next if tenant_option
+              (tenant_option = options.has_key?(key)) && (tenant = options.delete(key))
+            end
           end
+          options = options.merge(collection: Cenit::MultiTenancy.tenant_model.tenant_collection_name(mongoid_root_class, tenant: tenant)) if tenant_option
           super
         end
       end
