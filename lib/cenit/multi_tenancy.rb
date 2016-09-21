@@ -1,5 +1,6 @@
 require 'cenit/multi_tenancy/version'
 require 'cenit/multi_tenancy/scoped'
+require 'cenit/multi_tenancy/user_scope'
 
 module Cenit
   module MultiTenancy
@@ -16,12 +17,14 @@ module Cenit
         }
       end
 
-      def tenant_model(*args)
-        if (model = args[0]).is_a?(Class)
-          options[:tenant_model] = model
-          tenant_model_name model.to_s
-        end
-        options[:tenant_model]
+      %w(tenant user).each do |key|
+        class_eval "def #{key}_model(*args)
+          if (model = args[0]).is_a?(Class)
+            options[:#{key}_model] = model
+            #{key}_model_name model.to_s
+          end
+          options[:#{key}_model]
+        end"
       end
     end
 
@@ -40,11 +43,11 @@ module Cenit
     module ClassMethods
 
       def current
-        Thread.current["current_#{Cenit::MultiTenancy.tenant_model_key}".to_sym]
+        RequestStore.store["current_#{Cenit::MultiTenancy.tenant_model_key}".to_sym]
       end
 
       def current=(tenant)
-        Thread.current["current_#{Cenit::MultiTenancy.tenant_model_key}".to_sym] = tenant
+        RequestStore.store["current_#{Cenit::MultiTenancy.tenant_model_key}".to_sym] = tenant
       end
 
       def current_tenant
