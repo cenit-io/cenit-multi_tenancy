@@ -1,3 +1,6 @@
+
+require 'mongoid/userstamp/user'
+
 module Cenit
   module MultiTenancy
     module UserScope

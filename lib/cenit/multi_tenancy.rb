@@ -1,6 +1,7 @@
 require 'cenit/multi_tenancy/version'
 require 'cenit/multi_tenancy/scoped'
 require 'cenit/multi_tenancy/user_scope'
+require 'request_store'
 
 module Cenit
   module MultiTenancy
