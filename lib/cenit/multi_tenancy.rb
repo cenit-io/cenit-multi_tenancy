@@ -81,7 +81,7 @@ module Cenit
       def cenit_collections_names(tenant = current)
         db_name = Mongoid.default_client.database.name
         Mongoid.default_client[:'system.namespaces']
-          .find(name: Regexp.new("\\A#{db_name}.#{tenant_collection_prefix(tenant: tenant)}_[^$]+\\Z"))
+          .find(name: Regexp.new("\\A#{db_name}\.#{tenant_collection_prefix(tenant: tenant)}_[^$]+\\Z"))
           .collect { |doc| doc['name'] }
           .collect { |name| name.gsub(Regexp.new("\\A#{db_name}\."), '') }
       end
