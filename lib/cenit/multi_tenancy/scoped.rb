@@ -37,8 +37,21 @@ module Cenit
               (tenant_option = options.has_key?(key)) && (tenant = options.delete(key))
             end
           end
-          options = options.merge(collection: Cenit::MultiTenancy.tenant_model.tenant_collection_name(mongoid_root_class, tenant: tenant)) if tenant_option
-          super
+          if block_given?
+            unless tenant.is_a?(Cenit::MultiTenancy.tenant_model)
+              tenant = Cenit::MultiTenancy.tenant_model.where(id: tenant).first
+            end
+            current = Cenit::MultiTenancy.tenant_model.current
+            Cenit::MultiTenancy.tenant_model.current = tenant
+            begin
+              yield(self)
+            ensure
+              Cenit::MultiTenancy.tenant_model.current = current
+            end
+          else
+            options = options.merge(collection: Cenit::MultiTenancy.tenant_model.tenant_collection_name(mongoid_root_class, tenant: tenant)) if tenant_option
+            super
+          end
         end
       end
     end
