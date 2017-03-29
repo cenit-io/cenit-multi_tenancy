@@ -2,6 +2,7 @@ require 'cenit/multi_tenancy/version'
 require 'cenit/multi_tenancy/scoped'
 require 'cenit/multi_tenancy/user_scope'
 require 'request_store'
+require 'cenit/multi_tenancy/mongo_monkey_patch'
 
 module Cenit
   module MultiTenancy
@@ -79,11 +80,8 @@ module Cenit
       end
 
       def cenit_collections_names(tenant = current)
-        db_name = Mongoid.default_client.database.name
-        Mongoid.default_client[:'system.namespaces']
-          .find(name: Regexp.new("\\A#{db_name}\.#{tenant_collection_prefix(tenant: tenant)}_[^$]+\\Z"))
-          .collect { |doc| doc['name'] }
-          .collect { |name| name.gsub(Regexp.new("\\A#{db_name}\."), '') }
+        regex = Regexp.new("\\A#{tenant_collection_prefix(tenant: tenant)}_[^$]+\\Z")
+        Mongoid.default_client.database.collection_names(name: regex)
       end
 
       def each_cenit_collection(tenant = current, &block)
