@@ -28,6 +28,14 @@ module Cenit
           options[:#{key}_model]
         end"
       end
+
+      def current_tenant
+        tenant_model.current
+      end
+
+      def current_tenant=(tenant)
+        tenant_model.current = tenant
+      end
     end
 
     included do
@@ -40,6 +48,14 @@ module Cenit
 
     def each_cenit_collection(&block)
       self.class.each_cenit_collection(self, &block)
+    end
+
+    def switch(&block)
+      current = Cenit::MultiTenancy.current_tenant
+      Cenit::MultiTenancy.current_tenant = self
+      block.call if block
+    ensure
+      Cenit::MultiTenancy.current_tenant = current if block
     end
 
     module ClassMethods
