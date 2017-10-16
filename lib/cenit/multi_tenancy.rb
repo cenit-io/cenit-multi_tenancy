@@ -42,12 +42,12 @@ module Cenit
       Cenit::MultiTenancy.tenant_model self
     end
 
-    def cenit_collections_names
-      self.class.cenit_collections_names(self)
+    def tenant_collections_names
+      self.class.tenant_collections_names(self)
     end
 
-    def each_cenit_collection(&block)
-      self.class.each_cenit_collection(self, &block)
+    def each_tenant_collection(&block)
+      self.class.each_tenant_collection(self, &block)
     end
 
     def switch(&block)
@@ -95,13 +95,13 @@ module Cenit
         tenant_collection_prefix(options) + model_name.collectionize
       end
 
-      def cenit_collections_names(tenant = current)
-        regex = Regexp.new("\\A#{tenant_collection_prefix(tenant: tenant)}_[^$]+\\Z")
+      def tenant_collections_names(tenant = current)
+        regex = Regexp.new("\\A#{tenant_collection_prefix(tenant: tenant)}(_|\.)[^$]+\\Z")
         Mongoid.default_client.database.collection_names(name: regex)
       end
 
-      def each_cenit_collection(tenant = current, &block)
-        cenit_collections_names(tenant).each do |collection_name|
+      def each_tenant_collection(tenant = current, &block)
+        tenant_collections_names(tenant).each do |collection_name|
           block.call(Mongoid.default_client[collection_name.to_sym])
         end
       end
