@@ -1,4 +1,5 @@
 require 'mongo/database/view'
+require 'mongo/operation/commands/collections_info'
 require 'mongo/operation/commands/list_collections'
 
 module Mongo
@@ -32,6 +33,21 @@ module Mongo
   end
 
   module Operation
+
+    class CollectionsInfo
+
+      private
+
+      alias_method :mongo_selector, :selector
+
+      def selector
+        selector = mongo_selector
+        if (filter = spec[:selector]) && (filter = filter[:filter])
+          selector = { '$and' => [selector, filter] }
+        end
+        selector
+      end
+    end
 
     class ListCollections
 
