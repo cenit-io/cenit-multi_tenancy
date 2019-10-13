@@ -22,6 +22,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
 
   spec.add_runtime_dependency 'cenit-config'
-  spec.add_runtime_dependency 'glebtv_mongoid_userstamp', '~> 0.6.0'
+  spec.add_runtime_dependency 'glebtv_mongoid_userstamp', '>= 0.6.0'
   spec.add_runtime_dependency 'mongoid', '>= 5.0.1'
 end
