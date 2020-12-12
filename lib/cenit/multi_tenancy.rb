@@ -97,7 +97,10 @@ module Cenit
 
       def tenant_collections_names(tenant = current)
         regex = Regexp.new("\\A#{tenant_collection_prefix(tenant: tenant)}(_|\.)[^$]+\\Z")
-        Mongoid.default_client.database.collection_names(name: regex)
+        Mongoid.default_client.database.collection_names(
+          name: regex, # TODO Remove when stop legacy support
+          filter: { name: regex }
+        )
       end
 
       def each_tenant_collection(tenant = current, &block)
